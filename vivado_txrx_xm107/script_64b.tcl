@@ -44,7 +44,7 @@ set ip_files [list \
      clk_wiz_0\
      in_system_ibert_11lanes\
      axi_uartlite_0\
-     ila_data.xci
+     ila_data
     ]
      
 if { [lindex $argv 0] == 0 | $argc != 1 } {
