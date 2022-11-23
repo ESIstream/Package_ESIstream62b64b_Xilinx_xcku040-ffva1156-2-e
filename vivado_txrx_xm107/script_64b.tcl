@@ -42,7 +42,9 @@ set ip_files [list \
      gth_txrx_11lanes_64b\
      output_buffer_64b\
      clk_wiz_0\
-     in_system_ibert_11lanes
+     in_system_ibert_11lanes\
+     axi_uartlite_0\
+     ila_data.xci
     ]
      
 if { [lindex $argv 0] == 0 | $argc != 1 } {
