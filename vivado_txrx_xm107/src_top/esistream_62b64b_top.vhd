@@ -79,9 +79,9 @@ architecture rtl of esistream_62b64b_top is
   signal lanes_on         : std_logic_vector(NB_LANES-1 downto 0) := (others => '1');
   -- user interface
   signal d_ctrl           : std_logic_vector(1 downto 0)          := (others => '0');
-  signal prbs_ena         : std_logic                             := '0';
-  signal dc_ena           : std_logic                             := '0';
-  signal toggle_ena       : std_logic                             := '1';
+  signal prbs_en          : std_logic                             := '0';
+  signal db_en            : std_logic                             := '0';
+  signal cb_en            : std_logic                             := '1';
   signal ip_ready         : std_logic                             := '0';
   signal lanes_ready      : std_logic                             := '0';
   signal be_status        : std_logic                             := '0';
@@ -127,9 +127,9 @@ architecture rtl of esistream_62b64b_top is
   signal sync_req         : std_logic                             := '0';
 begin
   --
-  prbs_ena    <= GPIO_DIP_SW(0);
-  dc_ena      <= GPIO_DIP_SW(1);
-  toggle_ena  <= GPIO_DIP_SW(2);
+  prbs_en     <= GPIO_DIP_SW(0);
+  db_en       <= GPIO_DIP_SW(1);
+  cb_en       <= GPIO_DIP_SW(2);
   d_ctrl(1)   <= GPIO_DIP_SW(3);
   --
   GPIO_LED(0) <= syslock;
@@ -204,9 +204,9 @@ begin
     port map (
       sync         => sync_re,
       rst_esi_n    => rst_esi_n,
-      toggle_ena   => toggle_ena,
-      prbs_ena     => prbs_ena,
-      dc_ena       => dc_ena,
+      cb_en        => cb_en,
+      prbs_en      => prbs_en,
+      db_en        => db_en,
       data_in      => tx_data,
       rst_pll      => rst_pll,
       sysclk       => sysclk,
@@ -311,9 +311,9 @@ begin
 
   sync_req    <= reg_0(0);
   ila_trigger <= reg_5_os;
-  reg_8(0)    <= prbs_ena;
-  reg_8(1)    <= dc_ena;
-  reg_8(2)    <= toggle_ena;
+  reg_8(0)    <= prbs_en;
+  reg_8(1)    <= db_en;
+  reg_8(2)    <= cb_en;
   reg_8(3)    <= d_ctrl(0);
   reg_8(4)    <= d_ctrl(1);
 

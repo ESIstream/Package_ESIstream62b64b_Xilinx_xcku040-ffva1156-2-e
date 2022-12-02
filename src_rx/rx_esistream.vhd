@@ -17,13 +17,13 @@ entity rx_esistream is
     rx_usrclk     : in  std_logic;                                          -- RX User Clock from XCVR
     xcvr_data_rx  : in  std_logic_vector(DESER_WIDTH*NB_LANES-1 downto 0);  -- RX User data from RX XCVR part
 
-    prbs_ena       : in  std_logic;
-    sync_in        : in  std_logic;                                    -- active high synchronization pulse input
-    clk_acq        : in  std_logic;                                    -- acquisition clock, output buffer read port clock, should be same frequency and no phase drift with receive clock (default: clk_acq should take rx_clk).
-    frame_out      : out type_deser_width_array(NB_LANES-1 downto 0);  -- decoded output frame: disparity bit (0) + clk bit (1) + data (63 downto 2) (descrambling and disparity processed)  
-    ip_ready       : out std_logic;                                    -- active high ip ready output (transceiver pll locked and transceiver reset done)
-    lanes_ready    : out std_logic;                                    -- active high lanes ready output, indicates all lanes are synchronized (alignement and prbs initialization done)
-    lanes_on       : in  std_logic_vector(NB_LANES-1 downto 0)
+    prbs_en     : in  std_logic;
+    sync_in     : in  std_logic;                                    -- active high synchronization pulse input
+    clk_acq     : in  std_logic;                                    -- acquisition clock, output buffer read port clock, should be same frequency and no phase drift with receive clock (default: clk_acq should take rx_clk).
+    frame_out   : out type_deser_width_array(NB_LANES-1 downto 0);  -- decoded output frame: disparity bit (0) + clk bit (1) + data (63 downto 2) (descrambling and disparity processed)  
+    ip_ready    : out std_logic;                                    -- active high ip ready output (transceiver pll locked and transceiver reset done)
+    lanes_ready : out std_logic;                                    -- active high lanes ready output, indicates all lanes are synchronized (alignement and prbs initialization done)
+    lanes_on    : in  std_logic_vector(NB_LANES-1 downto 0)
     );
 end entity rx_esistream;
 
@@ -72,7 +72,7 @@ begin
         frame_in   => xcvr_data(index),     -- rx_usrclk domain
         sync       => sync_esi,             -- rx_usrclk domain
         rst_esi    => rst_esi,              -- rx_usrclk domain
-        prbs_ena   => prbs_ena,
+        prbs_ena   => prbs_en,
         read_fifo  => lanes_ready_t,
         lane_ready => lane_ready_t(index),  -- clk_acq domain
         frame_out  => frame_out(index)      -- clk_acq domain

@@ -1,5 +1,4 @@
 # TX / RX
-
 set_property PACKAGE_PIN V2 [get_ports {rxp[0]}]
 set_property PACKAGE_PIN V1 [get_ports {rxn[0]}]
 set_property PACKAGE_PIN W4 [get_ports {txp[0]}]
@@ -82,36 +81,6 @@ set_property IOSTANDARD LVCMOS18 [get_ports UART_RX]
 set_property IOSTANDARD LVCMOS18 [get_ports UART_TX]
 set_property PACKAGE_PIN K26 [get_ports UART_RX]
 set_property PACKAGE_PIN G25 [get_ports UART_TX]
-
-## SW12
-#set_property PACKAGE_PIN AN16 [get_ports prbs_ena]
-#set_property PACKAGE_PIN AN19 [get_ports dc_ena]
-#set_property PACKAGE_PIN AP18 [get_ports {d_ctrl[0]}]
-#set_property PACKAGE_PIN AN14 [get_ports {d_ctrl[1]}]
-#set_property IOSTANDARD LVCMOS12 [get_ports prbs_ena]
-#set_property IOSTANDARD LVCMOS12 [get_ports dc_ena]
-#set_property IOSTANDARD LVCMOS12 [get_ports {d_ctrl[0]}]
-#set_property IOSTANDARD LVCMOS12 [get_ports {d_ctrl[1]}]
-# 
-## Push buttons
-#set_property PACKAGE_PIN AE10 [get_ports rst_esi]
-#set_property PACKAGE_PIN AF9 [get_ports rst_sys]
-#set_property PACKAGE_PIN AE8 [get_ports sync]
-#set_property IOSTANDARD LVCMOS18 [get_ports rst_esi]
-#set_property IOSTANDARD LVCMOS18 [get_ports rst_sys]
-#set_property IOSTANDARD LVCMOS18 [get_ports sync]
-# 
-## LEDs
-#set_property PACKAGE_PIN N22 [get_ports be_status]
-#set_property PACKAGE_PIN P21 [get_ports cb_status]
-#set_property PACKAGE_PIN H23 [get_ports ip_ready]
-#set_property PACKAGE_PIN P20 [get_ports lanes_ready]
-#set_property PACKAGE_PIN M22 [get_ports valid_status]
-#set_property IOSTANDARD LVCMOS18 [get_ports be_status]
-#set_property IOSTANDARD LVCMOS18 [get_ports cb_status]
-#set_property IOSTANDARD LVCMOS18 [get_ports ip_ready]
-#set_property IOSTANDARD LVCMOS18 [get_ports lanes_ready]
-#set_property IOSTANDARD LVCMOS18 [get_ports valid_status]
 
 # 187.5 MHz
 create_clock -period 5.333 -name clk_mgtref -waveform {0.000 2.667} [get_ports refclk_p]

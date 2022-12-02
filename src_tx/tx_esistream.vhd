@@ -12,14 +12,14 @@ entity tx_esistream is
     NB_LANES : natural;
     COMMA    : std_logic_vector(63 downto 0));
   port (
-    clk        : in  std_logic;
-    sync       : in  std_logic;
-    rst_esi_n  : in  std_logic;
-    toggle_ena : in  std_logic;
-    prbs_ena   : in  std_logic;
-    dc_ena     : in  std_logic;
-    data_in    : in  type_62_array(NB_LANES-1 downto 0);
-    data_out   : out std_logic_vector(NB_LANES*SER_WIDTH-1 downto 0)
+    clk       : in  std_logic;
+    sync      : in  std_logic;
+    rst_esi_n : in  std_logic;
+    cb_en     : in  std_logic;
+    prbs_en   : in  std_logic;
+    db_en     : in  std_logic;
+    data_in   : in  type_62_array(NB_LANES-1 downto 0);
+    data_out  : out std_logic_vector(NB_LANES*SER_WIDTH-1 downto 0)
     );
 end tx_esistream;
 
@@ -42,8 +42,8 @@ architecture rtl of tx_esistream is
   signal reset_disparity : std_logic := '0';
   signal force_toggle    : std_logic := '0';
   signal data_enco       : type_64_array(NB_LANES-1 downto 0);
-  signal prbs_init : type_31_array(NB_LANES-1 downto 0);
-  --
+  signal prbs_init       : type_31_array(NB_LANES-1 downto 0);
+--
 begin
 
 -----------------------------------------------
@@ -70,13 +70,11 @@ begin
       generic map (
         COMMA => COMMA)
       port map (
-        clk => clk,
-
-        prbs_ena   => prbs_ena,
-        prbs_init  => prbs_init(idx),
-        toggle_ena => toggle_ena,
-        dc_ena     => dc_ena,
-
+        clk                => clk,
+        prbs_ena           => prbs_en,
+        prbs_init          => prbs_init(idx),
+        toggle_ena         => cb_en,
+        dc_ena             => db_en,
         reset_disparity_pi => reset_disparity,
         force_toggle_pi    => force_toggle,
         force_prbs_pi      => force_prbs,

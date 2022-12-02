@@ -27,9 +27,10 @@ architecture Behavioral of tb_esistream_62b64b_top is
   signal txp : std_logic_vector(NB_LANES-1 downto 0) := (others => '0');
   signal txn : std_logic_vector(NB_LANES-1 downto 0) := (others => '1');
 
-  signal d_ctrl       : std_logic_vector(1 downto 0) := "01";
-  signal prbs_ena     : std_logic                    := '1';
-  signal dc_ena       : std_logic                    := '1';
+  signal d_ctrl       : std_logic_vector(1 downto 0) := "10";
+  signal prbs_en      : std_logic                    := '1';
+  signal db_en        : std_logic                    := '1';
+  signal cb_en        : std_logic                    := '1';
   signal ip_ready     : std_logic                    := '0';
   signal lanes_ready  : std_logic                    := '0';
   signal be_status    : std_logic                    := '0';
@@ -49,23 +50,12 @@ begin
       COMMA                => COMMA,
       SYNC_DEBOUNCER_WIDTH => 2)
     port map (
-      --sync         => sync,
-      --rst_esi      => rst_esi,
-      --rst_sys      => rst_sys,
       refclk_n       => refclk_n,
       refclk_p       => refclk_p,
       rxp            => txp,
       rxn            => txn,
       txp            => txp,
       txn            => txn,
-      --ip_ready     => ip_ready,
-      --lanes_ready  => lanes_ready,
-      --d_ctrl       => d_ctrl,
-      --prbs_ena     => prbs_ena,
-      --dc_ena       => dc_ena,
-      --be_status    => be_status,
-      --cb_status    => cb_status,
-      --valid_status => valid_status
       CLK_125MHZ_P   => CLK_125MHZ_P,
       CLK_125MHZ_N   => CLK_125MHZ_N,
       GPIO_LED(0)    => syslock,
@@ -76,9 +66,9 @@ begin
       GPIO_LED(5)    => valid_status,
       GPIO_LED(6)    => led6,
       GPIO_LED(7)    => led7,
-      GPIO_DIP_SW(0) => prbs_ena,
-      GPIO_DIP_SW(1) => dc_ena,
-      GPIO_DIP_SW(2) => d_ctrl(0),
+      GPIO_DIP_SW(0) => prbs_en,
+      GPIO_DIP_SW(1) => db_en,
+      GPIO_DIP_SW(2) => cb_en,
       GPIO_DIP_SW(3) => d_ctrl(1),
       GPIO_SW_N      => swn,
       GPIO_SW_S      => sws,

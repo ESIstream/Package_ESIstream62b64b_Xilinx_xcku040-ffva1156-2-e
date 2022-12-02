@@ -10,12 +10,12 @@ entity esistream_tx_rx is
     NB_LANES : natural;
     COMMA    : std_logic_vector(63 downto 0));
   port (
-    sync       : in std_logic;
-    rst_esi_n  : in std_logic;
-    toggle_ena : in std_logic;
-    prbs_ena   : in std_logic;
-    dc_ena     : in std_logic;
-    data_in    : in type_62_array(NB_LANES-1 downto 0);
+    sync      : in std_logic;
+    rst_esi_n : in std_logic;
+    cb_en     : in std_logic;
+    prbs_en   : in std_logic;
+    db_en     : in std_logic;
+    data_in   : in type_62_array(NB_LANES-1 downto 0);
 
     rst_pll      : in  std_logic;
     sysclk       : in  std_logic;
@@ -28,10 +28,10 @@ entity esistream_tx_rx is
     tx_frame_clk : out std_logic;
     rx_frame_clk : out std_logic;
 
-    frame_out      : out type_deser_width_array(NB_LANES-1 downto 0);
-    ip_ready       : out std_logic;
-    lanes_ready    : out std_logic;
-    lanes_on       : in  std_logic_vector(NB_LANES-1 downto 0)
+    frame_out   : out type_deser_width_array(NB_LANES-1 downto 0);
+    ip_ready    : out std_logic;
+    lanes_ready : out std_logic;
+    lanes_on    : in  std_logic_vector(NB_LANES-1 downto 0)
     );
 
 end esistream_tx_rx;
@@ -58,14 +58,14 @@ begin
       NB_LANES => NB_LANES,
       COMMA    => COMMA)
     port map (
-      clk        => tx_usrclk,
-      sync       => sync,
-      rst_esi_n  => rst_esi_n,
-      toggle_ena => toggle_ena,
-      prbs_ena   => prbs_ena,
-      dc_ena     => dc_ena,
-      data_in    => data_in,
-      data_out   => data_tx_xcvr
+      clk       => tx_usrclk,
+      sync      => sync,
+      rst_esi_n => rst_esi_n,
+      cb_en     => cb_en,
+      prbs_en   => prbs_en,
+      db_en     => db_en,
+      data_in   => data_in,
+      data_out  => data_tx_xcvr
       );
 
   --XCVR
@@ -105,18 +105,18 @@ begin
       DESER_WIDTH => DESER_WIDTH,
       COMMA       => COMMA)
     port map (
-      rst_xcvr       => rst_xcvr,
-      rx_rstdone     => rx_rstdone,
-      xcvr_pll_lock  => xcvr_pll_lock,
-      rx_usrclk      => rx_usrclk,
-      xcvr_data_rx   => data_xcvr_rx,
-      prbs_ena       => prbs_ena,
-      sync_in        => sync,
-      clk_acq        => rx_frame_clk_t,
-      frame_out      => frame_out,
-      ip_ready       => rx_ip_ready,
-      lanes_ready    => lanes_ready,
-      lanes_on       => lanes_on
+      rst_xcvr      => rst_xcvr,
+      rx_rstdone    => rx_rstdone,
+      xcvr_pll_lock => xcvr_pll_lock,
+      rx_usrclk     => rx_usrclk,
+      xcvr_data_rx  => data_xcvr_rx,
+      prbs_en       => prbs_en,
+      sync_in       => sync,
+      clk_acq       => rx_frame_clk_t,
+      frame_out     => frame_out,
+      ip_ready      => rx_ip_ready,
+      lanes_ready   => lanes_ready,
+      lanes_on      => lanes_on
       );
 
 end rtl;
