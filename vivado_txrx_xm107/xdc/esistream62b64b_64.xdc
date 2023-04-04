@@ -94,8 +94,8 @@ set_property PACKAGE_PIN F10 [get_ports CLK_125MHZ_N]
 
 create_clock -period 8.000 -name CLK_125MHZ_P [get_ports CLK_125MHZ_P]
 #
-set_false_path -from [get_clocks rx_usrclk] -to [get_clocks clk_out1_clk_wiz_0]
-set_false_path -from [get_clocks clk_out1_clk_wiz_0] -to [get_clocks rx_usrclk]
+set_false_path -from [get_clocks rx_frame_clk] -to [get_clocks clk_out1_clk_wiz_0]
+set_false_path -from [get_clocks clk_out1_clk_wiz_0] -to [get_clocks rx_frame_clk]
 #
 set_false_path -from [get_clocks tx_frame_clk] -to [get_clocks clk_out1_clk_wiz_0]
 set_false_path -from [get_clocks clk_out1_clk_wiz_0] -to [get_clocks tx_frame_clk]

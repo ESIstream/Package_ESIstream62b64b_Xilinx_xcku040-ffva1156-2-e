@@ -10,13 +10,13 @@ entity esistream_tx_rx is
     NB_LANES : natural;
     COMMA    : std_logic_vector(63 downto 0));
   port (
-    sync      : in std_logic;
-    rst_esi_n : in std_logic;
-    cb_en     : in std_logic;
-    prbs_en   : in std_logic;
-    db_en     : in std_logic;
-    data_in   : in type_62_array(NB_LANES-1 downto 0);
-
+    sync         : in  std_logic;
+    rst_esi_n    : in  std_logic;
+    cb_en        : in  std_logic;
+    prbs_en      : in  std_logic;
+    db_en        : in  std_logic;
+    data_in      : in  type_62_array(NB_LANES-1 downto 0);
+    --
     rst_pll      : in  std_logic;
     sysclk       : in  std_logic;
     refclk_n     : in  std_logic;
@@ -27,11 +27,12 @@ entity esistream_tx_rx is
     txn          : out std_logic_vector(NB_LANES-1 downto 0);
     tx_frame_clk : out std_logic;
     rx_frame_clk : out std_logic;
-
-    frame_out   : out type_deser_width_array(NB_LANES-1 downto 0);
-    ip_ready    : out std_logic;
-    lanes_ready : out std_logic;
-    lanes_on    : in  std_logic_vector(NB_LANES-1 downto 0)
+    --
+    frame_out    : out type_deser_width_array(NB_LANES-1 downto 0);
+    valid_out    : out std_logic;
+    ip_ready     : out std_logic;
+    lanes_ready  : out std_logic;
+    lanes_on     : in  std_logic_vector(NB_LANES-1 downto 0)
     );
 
 end esistream_tx_rx;
@@ -95,8 +96,8 @@ begin
       data_out      => data_xcvr_rx
       );
   ip_ready       <= tx_ip_ready and rx_ip_ready;
-  rx_frame_clk_t <= rx_frame_clk_xcvr when DESER_WIDTH = 64 else rx_usrclk;  ----
-  rx_frame_clk   <= rx_frame_clk_t;
+  
+  rx_frame_clk   <= rx_usrclk;
 
   --RX
   rx_esistream_1 : entity work.rx_esistream
@@ -112,8 +113,9 @@ begin
       xcvr_data_rx  => data_xcvr_rx,
       prbs_en       => prbs_en,
       sync_in       => sync,
-      clk_acq       => rx_frame_clk_t,
+      clk_acq       => rx_usrclk,
       frame_out     => frame_out,
+      valid_out     => valid_out,
       ip_ready      => rx_ip_ready,
       lanes_ready   => lanes_ready,
       lanes_on      => lanes_on

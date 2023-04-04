@@ -16,25 +16,27 @@ entity rx_esistream is
     xcvr_pll_lock : in  std_logic_vector(NB_LANES-1 downto 0);              -- PLL locked from XCVR part
     rx_usrclk     : in  std_logic;                                          -- RX User Clock from XCVR
     xcvr_data_rx  : in  std_logic_vector(DESER_WIDTH*NB_LANES-1 downto 0);  -- RX User data from RX XCVR part
-
-    prbs_en     : in  std_logic;
-    sync_in     : in  std_logic;                                    -- active high synchronization pulse input
-    clk_acq     : in  std_logic;                                    -- acquisition clock, output buffer read port clock, should be same frequency and no phase drift with receive clock (default: clk_acq should take rx_clk).
-    frame_out   : out type_deser_width_array(NB_LANES-1 downto 0);  -- decoded output frame: disparity bit (0) + clk bit (1) + data (63 downto 2) (descrambling and disparity processed)  
-    ip_ready    : out std_logic;                                    -- active high ip ready output (transceiver pll locked and transceiver reset done)
-    lanes_ready : out std_logic;                                    -- active high lanes ready output, indicates all lanes are synchronized (alignement and prbs initialization done)
-    lanes_on    : in  std_logic_vector(NB_LANES-1 downto 0)
+    --
+    prbs_en       : in  std_logic;
+    sync_in       : in  std_logic;                                          -- active high synchronization pulse input
+    clk_acq       : in  std_logic;                                          -- acquisition clock, output buffer read port clock, should be same frequency and no phase drift with receive clock (default: clk_acq should take rx_clk).
+    frame_out     : out type_deser_width_array(NB_LANES-1 downto 0);        -- decoded output frame: disparity bit (0) + clk bit (1) + data (63 downto 2) (descrambling and disparity processed)  
+    valid_out     : out std_logic;
+    ip_ready      : out std_logic;                                          -- active high ip ready output (transceiver pll locked and transceiver reset done)
+    lanes_ready   : out std_logic;                                          -- active high lanes ready output, indicates all lanes are synchronized (alignement and prbs initialization done)
+    lanes_on      : in  std_logic_vector(NB_LANES-1 downto 0)
     );
 end entity rx_esistream;
 
 architecture rtl of rx_esistream is
 
+  signal read_fifo_t   : std_logic_vector(NB_LANES-1 downto 0)       := (others => '0');
   signal lane_ready_t  : std_logic_vector(NB_LANES-1 downto 0)       := (others => '0');
-  signal lanes_ready_t : std_logic                                   := '0';
+  signal lanes_ready_t : std_logic_vector(1 downto 0)                := (others => '0');
+  signal read_fifo     : std_logic                                   := '0';
   signal rst_esi       : std_logic                                   := '0';
   signal sync_esi      : std_logic                                   := '0';
   signal xcvr_data     : type_deser_width_array(NB_LANES-1 downto 0) := (others => (others => '0'));
-
 
 begin
 
@@ -73,7 +75,7 @@ begin
         sync       => sync_esi,             -- rx_usrclk domain
         rst_esi    => rst_esi,              -- rx_usrclk domain
         prbs_ena   => prbs_en,
-        read_fifo  => lanes_ready_t,
+        read_fifo  => read_fifo,
         lane_ready => lane_ready_t(index),  -- clk_acq domain
         frame_out  => frame_out(index)      -- clk_acq domain
         );
@@ -82,19 +84,23 @@ begin
   --=================================================================================================================
   -- Assignements output 
   --=================================================================================================================
+  read_fifo_t <= lane_ready_t or (not lanes_on);
   process(clk_acq)
   begin
     if rising_edge(clk_acq) then
-      lanes_ready_t <= and1((lane_ready_t and lanes_on) xnor lanes_on); lanes_ready_t <= and1((lane_ready_t and lanes_on) xnor lanes_on);
-      lanes_ready   <= lanes_ready_t;
+      -- lanes_ready_t 2-bit shift register
+      lanes_ready_t <= lanes_ready_t(lanes_ready_t'high-1 downto 0) & and1(read_fifo_t);
+      lanes_ready   <= lanes_ready_t(lanes_ready_t'high);
+      --
+      read_fifo     <= and1(read_fifo_t);
+      valid_out     <= read_fifo;
     end if;
   end process;
-
   --=================================================================================================================
   -- Transceiver User interface
   --=================================================================================================================
   gen_xcvr_data : for idx in 0 to NB_LANES-1 generate
     xcvr_data(idx) <= xcvr_data_rx(DESER_WIDTH*idx + (DESER_WIDTH-1) downto DESER_WIDTH*idx);  -- rx_usrclk domain
   end generate gen_xcvr_data;
-
+--
 end architecture rtl;

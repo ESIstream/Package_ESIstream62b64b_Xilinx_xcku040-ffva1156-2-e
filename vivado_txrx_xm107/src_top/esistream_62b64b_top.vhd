@@ -33,7 +33,7 @@ entity esistream_62b64b_top is
     GEN_ILA              : boolean                       := true;
     SYSRESET_INIT        : std_logic_vector(11 downto 0) := x"FFF";
     NB_LANES             : natural                       := 11;
-    COMMA                : std_logic_vector(63 downto 0) := x"ACF0FF00FFFF0000";
+    COMMA                : std_logic_vector(63 downto 0) := COMMA_PKG;
     SYNC_DEBOUNCER_WIDTH : natural                       := 24);
   port (
     refclk_n     : in  std_logic;
@@ -71,9 +71,12 @@ architecture rtl of esistream_62b64b_top is
   signal sync_re          : std_logic;
   signal sync_deb         : std_logic;
   signal tx_data          : type_62_array(NB_LANES-1 downto 0);
+  signal valid_out        : std_logic                             := '0';
+  signal valid_pip    : std_logic                             := '0';
+  signal valid_chk    : std_logic                             := '0';
   signal frame_out        : type_deser_width_array(NB_LANES-1 downto 0);
   signal frame_pip        : type_deser_width_array(NB_LANES-1 downto 0);
-  signal frame_ila        : type_deser_width_array(NB_LANES-1 downto 0);
+  --signal frame_ila        : type_deser_width_array(NB_LANES-1 downto 0);
   signal frame_chk        : type_deser_width_array(NB_LANES-1 downto 0);
   signal lanes_ready_t    : std_logic;
   signal lanes_on         : std_logic_vector(NB_LANES-1 downto 0) := (others => '1');
@@ -125,6 +128,7 @@ architecture rtl of esistream_62b64b_top is
   signal ila_trigger      : std_logic                             := '0';
   signal ila_trigger_init : std_logic_vector(15 downto 0)         := (others => '0');
   signal sync_req         : std_logic                             := '0';
+  
 begin
   --
   prbs_en     <= GPIO_DIP_SW(0);
@@ -219,58 +223,35 @@ begin
       tx_frame_clk => tx_frame_clk,
       rx_frame_clk => rx_frame_clk,
       frame_out    => frame_out,
+      valid_out    => valid_out,
       ip_ready     => ip_ready,
-      lanes_ready  => lanes_ready_t,
+      lanes_ready  => lanes_ready,
       lanes_on     => lanes_on
       );
-
-  lanes_ready <= lanes_ready_t;
-
-  process(rx_frame_clk)
-  begin
-    if rising_edge(rx_frame_clk) then
-      frame_pip <= frame_out;
-      frame_chk <= frame_pip;
-      frame_ila <= frame_pip;
-    end if;
-  end process;
 
   --------------------------------------------------------------------------------------------
   -- Check reveived data
   --------------------------------------------------------------------------------------------
   txrx_frame_checking_1 : entity work.txrx_frame_checking
     generic map (
-      NB_LANES => NB_LANES
+      NB_LANES => NB_LANES,
+      GEN_ILA  => GEN_ILA
       )
     port map (
       rst          => rst_esi,
       clk          => rx_frame_clk,
       d_ctrl       => d_ctrl,
       lanes_on     => lanes_on,
-      frame_out    => frame_chk,
-      lanes_ready  => lanes_ready_t,
+      frame_out    => frame_out,
+      lanes_ready  => valid_out,
       be_status    => be_status,
       cb_status    => cb_status,
-      valid_status => valid_status
+      valid_status => valid_status,
+      -- ila
+      ila_trigger  => ila_trigger
       );
 
-  --------------------------------------------------------------------------------------------
-  -- ILA data
-  --------------------------------------------------------------------------------------------
-  gen_ila_hdl : if GEN_ILA = true generate
-    ila_data_0 : entity work.ila_data
-      port map (
-        clk       => rx_frame_clk,
-        probe0    => frame_ila(3)(63 downto 2),
-        probe1    => frame_ila(4)(63 downto 2),
-        probe2    => frame_ila(5)(63 downto 2),
-        probe3    => frame_ila(6)(63 downto 2),
-        probe4    => frame_ila(7)(63 downto 2),
-        probe5    => frame_ila(8)(63 downto 2),
-        probe6    => frame_ila(9)(63 downto 2),
-        probe7    => frame_ila(10)(63 downto 2),
-        probe8(0) => ila_trigger);
-  end generate gen_ila_hdl;
+
 
   --------------------------------------------------------------------------------------------
   -- UART 8 bit 115200 and Register map
@@ -309,12 +290,12 @@ begin
       reg_10_os  => reg_10_os,
       reg_12_os  => reg_12_os);
 
-  sync_req    <= reg_0(0);
-  ila_trigger <= reg_5_os;
-  reg_8(0)    <= prbs_en;
-  reg_8(1)    <= db_en;
-  reg_8(2)    <= cb_en;
-  reg_8(3)    <= d_ctrl(0);
-  reg_8(4)    <= d_ctrl(1);
+  sync_req     <= reg_0(0);
+  ila_trigger  <= reg_5_os;
+  reg_8(0)     <= prbs_en;
+  reg_8(1)     <= db_en;
+  reg_8(2)     <= cb_en;
+  reg_8(3)     <= d_ctrl(0);
+  reg_8(4)     <= d_ctrl(1);
 
 end rtl;

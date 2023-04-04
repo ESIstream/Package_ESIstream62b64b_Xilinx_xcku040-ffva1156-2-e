@@ -28,7 +28,7 @@ begin
 
   delay_decoding_rdy : entity work.delay
     generic map (
-      LATENCY => (3-DESER_WIDTH/32)*32-1 -1
+      LATENCY => (3-DESER_WIDTH/32)*32-1
       )
     port map (
       clk => clk,

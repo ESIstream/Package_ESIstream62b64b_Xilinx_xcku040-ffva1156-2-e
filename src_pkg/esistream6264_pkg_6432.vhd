@@ -6,9 +6,10 @@ package esistream6264_pkg is
 
   constant DESER_WIDTH : natural                       := 32;
   constant SER_WIDTH   : natural                       := 64;
-  --constant NB_LANES    : natural                       := 11;
-  --constant COMMA       : std_logic_vector(31 downto 0) := X"00FFFF00";
-
+  --constant NB_LANES  : natural                       := 11;
+  --constant COMMA_PKG : std_logic_vector(63 downto 0) := x"ACF0FF00FFFF0000";  -- when DESER_WITH = 64-bit only
+  constant COMMA_PKG   : std_logic_vector(63 downto 0) := x"00FFFF0000FFFF00"; -- when DESER_WIDTH = 32-bit
+  
   type type_deser_width_array is array (natural range <>) of std_logic_vector(DESER_WIDTH-1 downto 0);
   type type_64_array is array (natural range <>) of std_logic_vector(64-1 downto 0);
   type type_63_array is array (natural range <>) of std_logic_vector(63-1 downto 0);

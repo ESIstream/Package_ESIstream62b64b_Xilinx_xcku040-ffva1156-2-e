@@ -13,9 +13,10 @@ end tb_esistream_62b64b_top;
 architecture Behavioral of tb_esistream_62b64b_top is
 
   constant NB_LANES       : natural                       := 11;
-  constant COMMA          : std_logic_vector(63 downto 0) := x"ACF0FF00FFFF0000";  --x"00FFFF0000FFFF00";
+  --constant COMMA          : std_logic_vector(63 downto 0) := x"ACF0FF00FFFF0000";  -- when DESER_WITH = 64-bit only
+  --constant COMMA          : std_logic_vector(63 downto 0) := x"00FFFF0000FFFF00"; -- when DESER_WIDTH = 32-bit
   constant clk125_period  : time                          := 8 ns;
-  constant clk1875_period : time                          := 5.333 ns;
+  constant clk1875_period : time                          := 5.000 ns; --5.333 ns;
   signal CLK_125MHZ_P     : std_logic                     := '1';
   signal CLK_125MHZ_N     : std_logic                     := '0';
   signal sync             : std_logic                     := '0';
@@ -47,7 +48,7 @@ begin
       GEN_ILA              => false,
       SYSRESET_INIT        => x"00F",
       NB_LANES             => NB_LANES,
-      COMMA                => COMMA,
+      COMMA                => COMMA_PKG,
       SYNC_DEBOUNCER_WIDTH => 2)
     port map (
       refclk_n       => refclk_n,
@@ -79,27 +80,31 @@ begin
       UART_TX        => '0'
       );
 
-
-
-  clk125_process : process
-  begin
-    CLK_125MHZ_P <= '1';
-    CLK_125MHZ_N <= '0';
-    wait for clk125_period/2;
-    CLK_125MHZ_P <= '0';
-    CLK_125MHZ_N <= '1';
-    wait for clk125_period/2;
-  end process;
-
-  clk1875_process : process
-  begin
-    refclk_p <= '1';
-    refclk_n <= '0';
-    wait for clk1875_period/2;
-    refclk_p <= '0';
-    refclk_n <= '1';
-    wait for clk1875_period/2;
-  end process;
+  CLK_125MHZ_P <= not CLK_125MHZ_P after 4 ns;
+  CLK_125MHZ_N <= not CLK_125MHZ_N after 4 ns;
+  --
+  refclk_p <= not refclk_p after 2.5 ns;
+  refclk_n <= not refclk_n after 2.5 ns;
+  
+  --clk125_process : process
+  --begin
+  --  CLK_125MHZ_P <= '1';
+  --  CLK_125MHZ_N <= '0';
+  --  wait for clk125_period/2;
+  --  CLK_125MHZ_P <= '0';
+  --  CLK_125MHZ_N <= '1';
+  --  wait for clk125_period/2;
+  --end process;
+  -- 
+  --clk1875_process : process
+  --begin
+  --  refclk_p <= '1';
+  --  refclk_n <= '0';
+  --  wait for clk1875_period/2;
+  --  refclk_p <= '0';
+  --  refclk_n <= '1';
+  --  wait for clk1875_period/2;
+  --end process;
 
 
   stimulus_process : process
@@ -107,12 +112,13 @@ begin
     wait for 1 us;
 
     rst_sys <= '1';
-    wait for 10*clk1875_period;
+    wait for 100 ns;
+    
     rst_sys <= '0';
-    wait for 600*clk1875_period;
+    wait for 500 ns;
 
     rst_esi <= '1';
-    wait for 10*clk1875_period;
+    wait for 100 ns;
     rst_esi <= '0';
     wait until rising_edge(ip_ready);  -- 3 us;
 
@@ -128,7 +134,7 @@ begin
     wait for 100 ns;
     sync <= '0';
 
-    wait for 3 us;
+    wait for 10 us;
     wait;
   end process;
 
